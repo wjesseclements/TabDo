@@ -219,3 +219,154 @@ All core features are implemented and working. The extension is functionally com
 
 ### 🚀 Ready for Testing
 The extension is now ready for comprehensive testing and can be loaded in Firefox for manual testing using `npm run extension`.
+
+## Manual Firefox Testing Instructions
+
+### Prerequisites
+- Firefox version 109 or higher
+- Node.js installed (for building the extension)
+
+### Step-by-Step Loading Instructions
+
+#### 1. Build the Extension
+```bash
+# Navigate to the TabDo directory
+cd /Users/jc/dev/tabdo
+
+# Install dependencies (if not already done)
+npm install
+
+# Build the production version
+npm run build
+```
+
+#### 2. Load Extension in Firefox
+
+**Method 1: Using web-ext (Recommended)**
+```bash
+# Install web-ext globally if not already installed
+npm install -g web-ext
+
+# Run the extension in a temporary Firefox profile
+npm run extension
+# OR manually:
+# web-ext run --source-dir=dist --target=firefox-desktop
+```
+
+**Method 2: Manual Loading (Alternative)**
+1. Open Firefox
+2. Navigate to `about:debugging`
+3. Click "This Firefox" in the left sidebar
+4. Click "Load Temporary Add-on..."
+5. Navigate to the `/Users/jc/dev/tabdo/dist/` directory
+6. Select the `manifest.json` file
+7. Click "Open"
+
+#### 3. Test the Extension
+
+**Initial Load Test:**
+1. Open a new tab (Ctrl/Cmd + T)
+2. The TabDo interface should appear instead of the default new tab page
+3. Check browser console (F12) for performance metrics:
+   - Look for "TabDo Performance Metrics" log entry
+   - Verify load time is under 200ms
+   - Check for any error messages
+
+**Core Functionality Testing:**
+
+**Task Management:**
+- Add tasks to each column (Daily, Recurring Daily, Weekly)
+- Edit tasks by double-clicking or using the edit button
+- Mark tasks as complete/incomplete using checkboxes
+- Delete tasks using the delete button
+- Drag and drop tasks to reorder within the same column
+
+**Settings Panel:**
+- Click the settings gear icon in the top right
+- Test theme switching (Light, Dark, System)
+- View keyboard shortcuts
+- Test "Clear All Data" functionality
+
+**Keyboard Shortcuts:**
+- `Ctrl/Cmd + 1`: Focus Daily tasks input
+- `Ctrl/Cmd + 2`: Focus Recurring Daily tasks input
+- `Ctrl/Cmd + 3`: Focus Weekly tasks input
+- `Ctrl/Cmd + ,`: Open Settings
+- `Esc`: Close modal/settings
+- `Enter`: Add task or save edit
+- `Double-click`: Edit task
+
+**Reset Logic Testing:**
+1. Add some tasks to Daily and Recurring Daily lists
+2. Check some tasks as complete
+3. Change your system time to the next day (or wait until midnight)
+4. Open a new tab to see reset behavior:
+   - Daily: Completed tasks should be deleted
+   - Recurring Daily: All tasks should be unchecked
+   - Weekly: No changes
+
+**Accessibility Testing:**
+- Test keyboard navigation with Tab key
+- Test screen reader compatibility (if available)
+- Verify focus indicators are visible
+- Test high contrast mode support
+
+**Performance Testing:**
+- Monitor console for performance warnings
+- Test with many tasks (add 20+ tasks to each list)
+- Check task operation speed (should be under 50ms)
+- Test drag & drop performance
+
+**Theme Testing:**
+- Test light theme appearance
+- Test dark theme appearance
+- Test system theme automatic switching
+- Verify smooth transitions between themes
+
+#### 4. Development Testing
+
+**With Hot Reload:**
+```bash
+# For development with auto-reload
+npm run dev
+# Then load the extension using about:debugging pointing to dist/
+```
+
+**Performance Monitoring:**
+- Open browser console (F12)
+- Look for performance metrics on each page load
+- Check for warnings about performance thresholds
+- Monitor task operation timing
+
+### Troubleshooting
+
+**Extension Won't Load:**
+- Verify Firefox version is 109+
+- Check that `npm run build` completed successfully
+- Ensure `dist/manifest.json` exists
+- Check browser console for error messages
+
+**Performance Issues:**
+- Check console for performance warnings
+- Verify SortableJS is loading properly for drag & drop
+- Monitor storage operation timing
+
+**Theme Issues:**
+- Test system theme detection
+- Verify CSS custom properties are working
+- Check for proper dark mode color scheme
+
+**Storage Issues:**
+- Check browser console for storage errors
+- Test with browser storage inspector (F12 > Storage tab)
+- Verify data persists between sessions
+
+### Expected Behavior
+- New tab page should load in under 200ms
+- All task operations should complete in under 50ms
+- Smooth 250ms theme transitions
+- Responsive design on different screen sizes
+- Full keyboard accessibility
+- Screen reader announcements for all actions
+
+The extension should work seamlessly as a new tab replacement with all productivity features functional.

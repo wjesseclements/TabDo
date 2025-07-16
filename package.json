@@ -6,11 +6,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && cp manifest.json dist/ && cp node_modules/webextension-polyfill/dist/browser-polyfill.js dist/",
     "test": "jest",
     "type-check": "tsc --noEmit",
     "lint": "eslint src/**/*.ts",
-    "extension": "web-ext run --source-dir=dist"
+    "extension": "npm run build && web-ext run --source-dir=dist --target=firefox-desktop",
+    "extension:lint": "web-ext lint --source-dir=dist"
   },
   "keywords": [
     "firefox",
