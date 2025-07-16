@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TabDo - New Tab</title>
+    <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+    <div id="app">
+        <header class="app-header">
+            <h1 class="app-title">TabDo</h1>
+            <button id="settings-btn" class="settings-btn" aria-label="Settings">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+            </button>
+        </header>
+
+        <main class="main-content">
+            <div class="lists-container">
+                <div class="list-column" id="daily-column">
+                    <div class="list-header">
+                        <h2 class="list-title">Daily</h2>
+                        <p class="list-subtitle">Resets at midnight</p>
+                    </div>
+                    <div class="add-task-container">
+                        <input 
+                            type="text" 
+                            id="daily-input" 
+                            class="add-task-input" 
+                            placeholder="Add a daily task..."
+                            aria-label="Add daily task"
+                        >
+                        <button 
+                            id="daily-add-btn" 
+                            class="add-task-btn" 
+                            aria-label="Add daily task"
+                        >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    <ul id="daily-list" class="task-list" aria-label="Daily tasks"></ul>
+                </div>
+
+                <div class="list-column" id="recurring-column">
+                    <div class="list-header">
+                        <h2 class="list-title">Recurring Daily</h2>
+                        <p class="list-subtitle">Unchecks at midnight</p>
+                    </div>
+                    <div class="add-task-container">
+                        <input 
+                            type="text" 
+                            id="recurring-input" 
+                            class="add-task-input" 
+                            placeholder="Add a recurring task..."
+                            aria-label="Add recurring daily task"
+                        >
+                        <button 
+                            id="recurring-add-btn" 
+                            class="add-task-btn" 
+                            aria-label="Add recurring daily task"
+                        >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    <ul id="recurring-list" class="task-list" aria-label="Recurring daily tasks"></ul>
+                </div>
+
+                <div class="list-column" id="weekly-column">
+                    <div class="list-header">
+                        <h2 class="list-title">Weekly</h2>
+                        <p class="list-subtitle">No automatic reset</p>
+                    </div>
+                    <div class="add-task-container">
+                        <input 
+                            type="text" 
+                            id="weekly-input" 
+                            class="add-task-input" 
+                            placeholder="Add a weekly task..."
+                            aria-label="Add weekly task"
+                        >
+                        <button 
+                            id="weekly-add-btn" 
+                            class="add-task-btn" 
+                            aria-label="Add weekly task"
+                        >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    <ul id="weekly-list" class="task-list" aria-label="Weekly tasks"></ul>
+                </div>
+            </div>
+        </main>
+
+        <!-- Settings Modal -->
+        <div id="settings-modal" class="modal" aria-hidden="true">
+            <div class="modal-content">
+                <header class="modal-header">
+                    <h2>Settings</h2>
+                    <button id="close-settings" class="close-btn" aria-label="Close settings">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </header>
+                <div class="modal-body">
+                    <div class="setting-item">
+                        <label for="theme-toggle" class="setting-label">Theme</label>
+                        <select id="theme-toggle" class="setting-select">
+                            <option value="system">System</option>
+                            <option value="light">Light</option>
+                            <option value="dark">Dark</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <span class="setting-label">Version</span>
+                        <span id="version-info" class="setting-value">1.0.0</span>
+                    </div>
+                    <div class="setting-item">
+                        <a href="https://github.com/wjesseclements/TabDo" target="_blank" class="setting-link">
+                            View on GitHub
+                        </a>
+                    </div>
+                    <div class="setting-item">
+                        <details class="keyboard-shortcuts">
+                            <summary class="shortcuts-summary">Keyboard Shortcuts</summary>
+                            <div class="shortcuts-content">
+                                <div class="shortcut-item">
+                                    <kbd>Ctrl/Cmd + 1</kbd> <span>Focus Daily tasks</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <kbd>Ctrl/Cmd + 2</kbd> <span>Focus Recurring tasks</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <kbd>Ctrl/Cmd + 3</kbd> <span>Focus Weekly tasks</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <kbd>Ctrl/Cmd + ,</kbd> <span>Open Settings</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <kbd>Esc</kbd> <span>Close modal</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <kbd>Enter</kbd> <span>Add task / Edit task</span>
+                                </div>
+                                <div class="shortcut-item">
+                                    <kbd>Double-click</kbd> <span>Edit task</span>
+                                </div>
+                            </div>
+                        </details>
+                    </div>
+                    <div class="setting-item">
+                        <button id="clear-data-btn" class="danger-btn">Clear All Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirmation Modal -->
+        <div id="confirm-modal" class="modal" aria-hidden="true">
+            <div class="modal-content">
+                <header class="modal-header">
+                    <h2>Confirm Action</h2>
+                </header>
+                <div class="modal-body">
+                    <p id="confirm-message">Are you sure you want to proceed?</p>
+                </div>
+                <div class="modal-footer">
+                    <button id="confirm-cancel" class="btn-secondary">Cancel</button>
+                    <button id="confirm-ok" class="btn-primary">Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="browser-polyfill.js"></script>
+    <script type="module" src="src/main.ts"></script>
+</body>
+</html>
