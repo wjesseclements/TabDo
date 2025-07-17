@@ -4,20 +4,20 @@ export interface ITask {
   checked: boolean;
   createdAt: number;
   order: number;
+  isRecurring: boolean;
 }
 
 export interface IAppState {
   version: number;
   lists: {
     daily: ITask[];
-    recurringDaily: ITask[];
     weekly: ITask[];
   };
   theme: 'light' | 'dark' | 'system';
   lastReset: number;
 }
 
-export type ListType = 'daily' | 'recurringDaily' | 'weekly';
+export type ListType = 'daily' | 'weekly';
 
 export interface IStorageManager {
   load(): Promise<IAppState>;
@@ -37,7 +37,6 @@ export interface IResetManager {
   checkAndPerformReset(): Promise<void>;
   shouldReset(): boolean;
   resetDailyList(): Promise<void>;
-  resetRecurringDailyList(): Promise<void>;
 }
 
 export interface IThemeManager {
@@ -129,14 +128,13 @@ export const DEFAULT_APP_STATE: IAppState = {
   version: 1,
   lists: {
     daily: [],
-    recurringDaily: [],
     weekly: []
   },
   theme: 'system',
   lastReset: Date.now()
 };
 
-export const LIST_TYPES: ListType[] = ['daily', 'recurringDaily', 'weekly'];
+export const LIST_TYPES: ListType[] = ['daily', 'weekly'];
 
 export const STORAGE_KEY = 'tabdo-state';
 export const PERFORMANCE_THRESHOLDS = {

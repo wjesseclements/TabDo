@@ -8,22 +8,19 @@
 </head>
 <body>
     <div id="app">
-        <header class="app-header">
-            <h1 class="app-title">TabDo</h1>
-            <button id="settings-btn" class="settings-btn" aria-label="Settings">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="3"></circle>
-                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                </svg>
-            </button>
-        </header>
+        <!-- Central Clock Display -->
+        <div class="clock-container">
+            <div class="clock-time" id="clock-time">00:00</div>
+            <div class="clock-date" id="clock-date">Loading...</div>
+            <div class="clock-day" id="clock-day">Loading...</div>
+        </div>
 
         <main class="main-content">
             <div class="lists-container">
                 <div class="list-column" id="daily-column">
                     <div class="list-header">
                         <h2 class="list-title">Daily</h2>
-                        <p class="list-subtitle">Resets at midnight</p>
+                        <p class="list-subtitle">Recurring tasks persist at midnight</p>
                     </div>
                     <div class="add-task-container">
                         <input 
@@ -47,32 +44,6 @@
                     <ul id="daily-list" class="task-list" aria-label="Daily tasks"></ul>
                 </div>
 
-                <div class="list-column" id="recurring-column">
-                    <div class="list-header">
-                        <h2 class="list-title">Recurring Daily</h2>
-                        <p class="list-subtitle">Unchecks at midnight</p>
-                    </div>
-                    <div class="add-task-container">
-                        <input 
-                            type="text" 
-                            id="recurring-input" 
-                            class="add-task-input" 
-                            placeholder="Add a recurring task..."
-                            aria-label="Add recurring daily task"
-                        >
-                        <button 
-                            id="recurring-add-btn" 
-                            class="add-task-btn" 
-                            aria-label="Add recurring daily task"
-                        >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
-                        </button>
-                    </div>
-                    <ul id="recurring-list" class="task-list" aria-label="Recurring daily tasks"></ul>
-                </div>
 
                 <div class="list-column" id="weekly-column">
                     <div class="list-header">
@@ -102,6 +73,14 @@
                 </div>
             </div>
         </main>
+
+        <!-- Floating Settings Button -->
+        <button id="settings-btn" class="floating-settings-btn" aria-label="Settings">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+        </button>
 
         <!-- Settings Modal -->
         <div id="settings-modal" class="modal" aria-hidden="true">
@@ -141,10 +120,7 @@
                                     <kbd>Ctrl/Cmd + 1</kbd> <span>Focus Daily tasks</span>
                                 </div>
                                 <div class="shortcut-item">
-                                    <kbd>Ctrl/Cmd + 2</kbd> <span>Focus Recurring tasks</span>
-                                </div>
-                                <div class="shortcut-item">
-                                    <kbd>Ctrl/Cmd + 3</kbd> <span>Focus Weekly tasks</span>
+                                    <kbd>Ctrl/Cmd + 2</kbd> <span>Focus Weekly tasks</span>
                                 </div>
                                 <div class="shortcut-item">
                                     <kbd>Ctrl/Cmd + ,</kbd> <span>Open Settings</span>

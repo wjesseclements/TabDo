@@ -106,7 +106,8 @@ class TaskOperations implements ITaskOperations {
       text: trimmedText,
       checked: false,
       createdAt: Date.now(),
-      order: 0
+      order: 0,
+      isRecurring: false
     };
 
     // Optimize by creating new array instead of mutating
@@ -157,8 +158,33 @@ class TaskOperations implements ITaskOperations {
     const task = tasks[taskIndex];
     if (task) {
       task.checked = !task.checked;
+      
+      // Reorder tasks based on completion status
+      const reorderedTasks = this.reorderTasksByCompletion(tasks);
+      await this.app.setState({ lists: { ...state.lists, [listType]: reorderedTasks } });
     }
-    await this.app.setState({ lists: { ...state.lists, [listType]: tasks } });
+  }
+
+  private reorderTasksByCompletion(tasks: ITask[]): ITask[] {
+    // Separate completed and uncompleted tasks
+    const uncompletedTasks = tasks.filter(task => !task.checked);
+    const completedTasks = tasks.filter(task => task.checked);
+    
+    // Sort uncompleted tasks by order
+    uncompletedTasks.sort((a, b) => a.order - b.order);
+    
+    // Sort completed tasks by order (most recently completed first)
+    completedTasks.sort((a, b) => a.order - b.order);
+    
+    // Combine: uncompleted tasks first, then completed tasks
+    const reorderedTasks = [...uncompletedTasks, ...completedTasks];
+    
+    // Update order property to reflect new positions
+    reorderedTasks.forEach((task, index) => {
+      task.order = index;
+    });
+    
+    return reorderedTasks;
   }
 
   async reorderTasks(listType: ListType, taskIds: string[]): Promise<void> {
@@ -189,7 +215,6 @@ class ResetManager implements IResetManager {
   async checkAndPerformReset(): Promise<void> {
     if (this.shouldReset()) {
       await this.resetDailyList();
-      await this.resetRecurringDailyList();
       
       const state = this.app.getState();
       await this.app.setState({ lastReset: Date.now() });
@@ -210,30 +235,39 @@ class ResetManager implements IResetManager {
 
   async resetDailyList(): Promise<void> {
     const state = this.app.getState();
-    const uncheckedTasks = state.lists.daily.filter(task => !task.checked);
+    const dailyTasks = state.lists.daily;
+    
+    // Process tasks based on their recurring status
+    const processedTasks: ITask[] = [];
+    
+    dailyTasks.forEach(task => {
+      if (task.isRecurring) {
+        // Recurring tasks: uncheck and move to top
+        processedTasks.unshift({
+          ...task,
+          checked: false,
+          order: 0
+        });
+      } else if (!task.checked) {
+        // Non-recurring unchecked tasks: keep as is
+        processedTasks.push(task);
+      }
+      // Non-recurring checked tasks: remove (don't add to processedTasks)
+    });
+    
+    // Reorder all tasks to ensure proper order values
+    processedTasks.forEach((task, index) => {
+      task.order = index;
+    });
     
     await this.app.setState({
       lists: {
         ...state.lists,
-        daily: uncheckedTasks
+        daily: processedTasks
       }
     });
   }
 
-  async resetRecurringDailyList(): Promise<void> {
-    const state = this.app.getState();
-    const uncheckTasks = state.lists.recurringDaily.map(task => ({
-      ...task,
-      checked: false
-    }));
-    
-    await this.app.setState({
-      lists: {
-        ...state.lists,
-        recurringDaily: uncheckTasks
-      }
-    });
-  }
 }
 
 class ThemeManager implements IThemeManager {
@@ -266,6 +300,61 @@ class ThemeManager implements IThemeManager {
   }
 }
 
+class ClockManager {
+  private timeUpdateInterval: number | null = null;
+
+  init(): void {
+    this.updateClock();
+    this.startClockUpdates();
+  }
+
+  private updateClock(): void {
+    const now = new Date();
+    
+    // Format time (HH:MM)
+    const timeString = now.toLocaleTimeString([], { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: false 
+    });
+    
+    // Format date (Month Day, Year)
+    const dateString = now.toLocaleDateString([], {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    });
+    
+    // Format day of week
+    const dayString = now.toLocaleDateString([], {
+      weekday: 'long'
+    });
+    
+    // Update DOM elements
+    const timeElement = document.getElementById('clock-time');
+    const dateElement = document.getElementById('clock-date');
+    const dayElement = document.getElementById('clock-day');
+    
+    if (timeElement) timeElement.textContent = timeString;
+    if (dateElement) dateElement.textContent = dateString;
+    if (dayElement) dayElement.textContent = dayString;
+  }
+
+  private startClockUpdates(): void {
+    // Update every second
+    this.timeUpdateInterval = window.setInterval(() => {
+      this.updateClock();
+    }, 1000);
+  }
+
+  shutdown(): void {
+    if (this.timeUpdateInterval) {
+      clearInterval(this.timeUpdateInterval);
+      this.timeUpdateInterval = null;
+    }
+  }
+}
+
 class UIManager implements IUIManager {
   constructor(private app: TabDoApp, private taskOps: TaskOperations) {}
 
@@ -290,6 +379,13 @@ class UIManager implements IUIManager {
     const actionsDiv = document.createElement('div');
     actionsDiv.className = 'task-actions';
 
+    // Add recurring toggle button
+    const recurringBtn = document.createElement('button');
+    recurringBtn.className = 'task-recurring-btn';
+    recurringBtn.innerHTML = task.isRecurring ? '🔄' : '↻';
+    recurringBtn.setAttribute('aria-label', `Mark "${task.text}" as ${task.isRecurring ? 'non-recurring' : 'recurring'}`);
+    recurringBtn.setAttribute('title', task.isRecurring ? 'Make non-recurring' : 'Make recurring');
+
     const editBtn = document.createElement('button');
     editBtn.className = 'task-edit-btn';
     editBtn.innerHTML = '✏️';
@@ -305,6 +401,7 @@ class UIManager implements IUIManager {
     dragHandle.innerHTML = '⋮⋮';
     dragHandle.setAttribute('aria-label', 'Drag to reorder');
 
+    actionsDiv.appendChild(recurringBtn);
     actionsDiv.appendChild(editBtn);
     actionsDiv.appendChild(deleteBtn);
     actionsDiv.appendChild(dragHandle);
@@ -319,7 +416,7 @@ class UIManager implements IUIManager {
   }
 
   renderList(listType: ListType, tasks: ITask[]): void {
-    const listElement = document.getElementById(`${listType === 'recurringDaily' ? 'recurring' : listType}-list`);
+    const listElement = document.getElementById(`${listType}-list`);
     if (!listElement) return;
 
     listElement.innerHTML = '';
@@ -380,7 +477,6 @@ class UIManager implements IUIManager {
     const state = this.app.getState();
     
     this.renderList('daily', state.lists.daily);
-    this.renderList('recurringDaily', state.lists.recurringDaily);
     this.renderList('weekly', state.lists.weekly);
 
     const themeSelect = document.getElementById('theme-toggle') as HTMLSelectElement;
@@ -411,6 +507,7 @@ class UIManager implements IUIManager {
   private setupTaskEventListeners(taskElement: HTMLElement, task: ITask): void {
     const checkbox = taskElement.querySelector('.task-checkbox') as HTMLInputElement;
     const textSpan = taskElement.querySelector('.task-text') as HTMLSpanElement;
+    const recurringBtn = taskElement.querySelector('.task-recurring-btn') as HTMLButtonElement;
     const editBtn = taskElement.querySelector('.task-edit-btn') as HTMLButtonElement;
     const deleteBtn = taskElement.querySelector('.task-delete-btn') as HTMLButtonElement;
 
@@ -419,6 +516,13 @@ class UIManager implements IUIManager {
       this.taskOps.toggleTask(listType, task.id);
       const action = checkbox.checked ? 'completed' : 'uncompleted';
       this.announceToScreenReader(`Task "${task.text}" ${action}`);
+    });
+
+    recurringBtn.addEventListener('click', () => {
+      const listType = this.getListTypeFromElement(taskElement);
+      this.taskOps.updateTask(listType, task.id, { isRecurring: !task.isRecurring });
+      const action = task.isRecurring ? 'non-recurring' : 'recurring';
+      this.announceToScreenReader(`Task "${task.text}" marked as ${action}`);
     });
 
     editBtn.addEventListener('click', () => {
@@ -482,7 +586,6 @@ class UIManager implements IUIManager {
     const listId = listElement.id;
     
     if (listId === 'daily-list') return 'daily';
-    if (listId === 'recurring-list') return 'recurringDaily';
     if (listId === 'weekly-list') return 'weekly';
     
     throw new Error('Unknown list type');
@@ -561,6 +664,7 @@ class TabDoApp implements ITabDoApp {
   private resetManager: ResetManager;
   private themeManager: ThemeManager;
   private uiManager: UIManager;
+  private clockManager: ClockManager;
   private performanceMonitor: PerformanceMonitor;
 
   constructor() {
@@ -569,6 +673,7 @@ class TabDoApp implements ITabDoApp {
     this.resetManager = new ResetManager(this);
     this.themeManager = new ThemeManager(this);
     this.uiManager = new UIManager(this, this.taskOps);
+    this.clockManager = new ClockManager();
     this.performanceMonitor = new PerformanceMonitor();
   }
 
@@ -593,6 +698,7 @@ class TabDoApp implements ITabDoApp {
       requestAnimationFrame(async () => {
         this.setupEventListeners();
         await this.setupDragAndDrop();
+        this.clockManager.init();
         this.uiManager.updateUI();
         this.performanceMonitor.endAppInit();
       });
@@ -605,6 +711,7 @@ class TabDoApp implements ITabDoApp {
 
   shutdown(): void {
     // Cleanup event listeners and timers
+    this.clockManager.shutdown();
   }
 
   getState(): IAppState {
@@ -619,7 +726,7 @@ class TabDoApp implements ITabDoApp {
 
   private setupEventListeners(): void {
     // Input event listeners
-    ['daily', 'recurring', 'weekly'].forEach(listType => {
+    ['daily', 'weekly'].forEach(listType => {
       const input = document.getElementById(`${listType}-input`) as HTMLInputElement;
       const button = document.getElementById(`${listType}-add-btn`) as HTMLButtonElement;
       
@@ -692,10 +799,6 @@ class TabDoApp implements ITabDoApp {
             break;
           case '2':
             e.preventDefault();
-            document.getElementById('recurring-input')?.focus();
-            break;
-          case '3':
-            e.preventDefault();
             document.getElementById('weekly-input')?.focus();
             break;
           case ',':
@@ -714,7 +817,7 @@ class TabDoApp implements ITabDoApp {
       SortableJS = Sortable;
     }
     
-    ['daily', 'recurring', 'weekly'].forEach(listType => {
+    ['daily', 'weekly'].forEach(listType => {
       const listElement = document.getElementById(`${listType}-list`);
       if (listElement && SortableJS) {
         new SortableJS(listElement, {
@@ -728,7 +831,7 @@ class TabDoApp implements ITabDoApp {
               const taskIds = Array.from(listElement.children).map(el => 
                 el.getAttribute('data-task-id')!
               );
-              this.taskOps.reorderTasks(listType === 'recurring' ? 'recurringDaily' : listType as ListType, taskIds);
+              this.taskOps.reorderTasks(listType as ListType, taskIds);
             }
           }
         });
@@ -736,9 +839,8 @@ class TabDoApp implements ITabDoApp {
     });
   }
 
-  private async addTask(listType: 'daily' | 'recurring' | 'weekly', text: string): Promise<void> {
-    const actualListType = listType === 'recurring' ? 'recurringDaily' : listType;
-    await this.taskOps.addTask(actualListType, text);
+  private async addTask(listType: 'daily' | 'weekly', text: string): Promise<void> {
+    await this.taskOps.addTask(listType, text);
     this.uiManager.announceToScreenReader(`Added task "${text}" to ${listType} list`);
   }
 }

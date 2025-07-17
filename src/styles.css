@@ -82,39 +82,75 @@ body {
   flex-direction: column;
 }
 
-.app-header {
+/* Clock Display */
+.clock-container {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
-  padding: var(--spacing-lg) var(--spacing-xl);
+  padding: var(--spacing-xxl) var(--spacing-xl);
   background-color: var(--color-card);
   border-bottom: 1px solid var(--color-border);
   box-shadow: var(--shadow-sm);
 }
 
-.app-title {
-  font-size: var(--font-size-xl);
+.clock-time {
+  font-size: 4rem;
   font-weight: var(--font-weight-bold);
   color: var(--color-text);
+  margin-bottom: var(--spacing-sm);
+  font-family: 'Monaco', 'Consolas', monospace;
+  text-align: center;
 }
 
-.settings-btn {
-  background: none;
-  border: none;
-  padding: var(--spacing-sm);
-  border-radius: var(--border-radius-sm);
-  cursor: pointer;
+.clock-date {
+  font-size: var(--font-size-lg);
   color: var(--color-text);
-  transition: background-color var(--transition-fast);
+  margin-bottom: var(--spacing-xs);
+  text-align: center;
 }
 
-.settings-btn:hover {
-  background-color: var(--color-hover);
+.clock-day {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-align: center;
 }
 
-.settings-btn:focus {
+/* Floating Settings Button */
+.floating-settings-btn {
+  position: fixed;
+  bottom: var(--spacing-lg);
+  right: var(--spacing-lg);
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-lg);
+  transition: all var(--transition-fast);
+  z-index: 100;
+}
+
+.floating-settings-btn:hover {
+  background-color: #2BAE67;
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(50, 193, 116, 0.3);
+}
+
+.floating-settings-btn:focus {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+}
+
+.floating-settings-btn:active {
+  transform: scale(0.95);
 }
 
 /* Main Content */
@@ -125,7 +161,7 @@ body {
 
 .lists-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(375px, 1fr));
   gap: var(--spacing-lg);
   max-width: 1200px;
   margin: 0 auto;
@@ -337,6 +373,7 @@ body {
   opacity: 1;
 }
 
+.task-recurring-btn,
 .task-edit-btn,
 .task-delete-btn {
   background: none;
@@ -348,8 +385,17 @@ body {
   transition: background-color var(--transition-fast);
 }
 
+.task-recurring-btn:hover,
 .task-edit-btn:hover {
   background-color: var(--color-hover);
+}
+
+.task-recurring-btn {
+  color: var(--color-text-secondary);
+}
+
+.task-recurring-btn:hover {
+  color: var(--color-primary);
 }
 
 .task-delete-btn:hover {
@@ -606,8 +652,12 @@ body {
     gap: var(--spacing-md);
   }
   
-  .app-header {
-    padding: var(--spacing-md);
+  .clock-container {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+  
+  .clock-time {
+    font-size: 3rem;
   }
   
   .main-content {
@@ -621,11 +671,26 @@ body {
   .modal-content {
     width: 95%;
   }
+  
+  .floating-settings-btn {
+    width: 48px;
+    height: 48px;
+    bottom: var(--spacing-md);
+    right: var(--spacing-md);
+  }
 }
 
 @media (max-width: 480px) {
-  .app-title {
-    font-size: var(--font-size-lg);
+  .clock-time {
+    font-size: 2.5rem;
+  }
+  
+  .clock-date {
+    font-size: var(--font-size-base);
+  }
+  
+  .clock-day {
+    font-size: var(--font-size-sm);
   }
   
   .list-title {
@@ -647,6 +712,11 @@ body {
   .task-actions {
     opacity: 1;
   }
+  
+  .floating-settings-btn {
+    width: 44px;
+    height: 44px;
+  }
 }
 
 /* Focus Styles for Accessibility */
@@ -656,6 +726,7 @@ body {
   border-radius: var(--border-radius-sm);
 }
 
+.task-recurring-btn:focus,
 .task-edit-btn:focus,
 .task-delete-btn:focus {
   outline: 2px solid var(--color-primary);
@@ -732,14 +803,14 @@ body {
 
 /* Print Styles */
 @media print {
-  .settings-btn,
+  .floating-settings-btn,
   .task-actions,
   .add-task-container,
   .modal {
     display: none !important;
   }
   
-  .app-header {
+  .clock-container {
     box-shadow: none;
     border-bottom: 1px solid #000;
   }
